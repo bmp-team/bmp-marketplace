@@ -2,8 +2,22 @@ name: Build and Push Docker Images
 on:
   push:
     branches: [contrat]
+  pull_request:
+    branches: [contrat]
 jobs:
+  sonarcloud:
+    name: SonarCloud analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud scan
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   build-backend:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,6 +28,7 @@ jobs:
           docker build -t saif4584851/pidevxbm-backend:latest ./backend
           docker push saif4584851/pidevxbm-backend:latest
   build-frontend:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
